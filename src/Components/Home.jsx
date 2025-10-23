@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Footer from "./Footer";
 import Vision from "./Vision";
 import ScrollToTopButton from "./gototop";
@@ -6,9 +6,32 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 
 export default function Home() {
+  const tiltCard = useRef();
 
   useEffect(() => {
     AOS.init();
+    const card = tiltCard.current;
+    card.addEventListener("mousemove", (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left; // X position inside the card
+      const y = e.clientY - rect.top; // Y position inside the card
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Calculate rotation values
+      const rotateX = ((y - centerY) / centerY) * 10; // tilt up/down
+      const rotateY = ((x - centerX) / centerX) * -10; // tilt left/right
+
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      card.style.boxShadow = `${-rotateY * 2}px ${
+        rotateX * 2
+      }px 30px rgba(0, 0, 0, 0.4)`;
+    });
+
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "rotateX(0) rotateY(0)";
+      card.style.boxShadow = "0 15px 25px rgba(0, 0, 0, 0.3)";
+    });
   }, []);
 
   return (
@@ -30,19 +53,31 @@ export default function Home() {
             </div>
             <div className="butone">
               <a href="https://gdsc.community.dev/accounts/login/?next=/sikkim-manipal-institute-of-technology-gangtok/">
-                <button type="button" id="becameButton" className="btn btn-primary mx-3">
+                <button
+                  type="button"
+                  id="becameButton"
+                  className="btn btn-primary mx-3"
+                >
                   Become Member
                 </button>
               </a>
               <a href="https://developers.google.com/community/gdsc#:~:text=Google%20Developer%20Student%20Clubs%20(GDSC,as%20a%20developer%20are%20welcome.">
-                <button type="button" id="learnButton" className="btn btn-outline-dark">
+                <button
+                  type="button"
+                  id="learnButton"
+                  className="btn btn-outline-dark"
+                >
                   Learn More
                 </button>
               </a>
             </div>
           </div>
           <div className="col-md-4">
-            <img src="./img/gsc.png" className="img-fluid" alt="..." />
+            <div className="tilt-container">
+              <div className="tilt-card" ref={tiltCard}>
+                <img src="./img/gsc.png" className="img-fluid" alt="..." />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -51,7 +86,9 @@ export default function Home() {
         <div className="gy-5 rounded-4 d-flex flex-md-row flex-column text-center my-5 justify-content-center align-items-center">
           <div className="my-3 mx-3">
             <div className="p-3 rounded-4 border bg-light">
-              <h3><b>Why GDSC?</b></h3> 
+              <h3>
+                <b>Why GDSC?</b>
+              </h3>
               <br />
               By joining GDSC at SMIT, you gain access to numerous workshops,
               information sessions, and student-community collaborative projects
@@ -60,7 +97,9 @@ export default function Home() {
 
           <div className="my-3 rounded-4 mx-3">
             <div className="p-3 rounded-4 border bg-light">
-              <h3><b>Concept of GDSC</b></h3> 
+              <h3>
+                <b>Concept of GDSC</b>
+              </h3>
               <br />
               The purpose of GDSC is to inspire and empower students through
               understanding technology and reflecting on it's impact
@@ -72,10 +111,15 @@ export default function Home() {
       <Vision />
 
       <div
-      data-aos="fade-up"
-      className="bg embed-responsive-16by9 text-center my-5" id="Video">
-        <div className="container-fluid rounded-4 overflow-hidden shadow-lg " id="video">
-          <iframe 
+        data-aos="fade-up"
+        className="bg embed-responsive-16by9 text-center my-5"
+        id="Video"
+      >
+        <div
+          className="container-fluid rounded-4 overflow-hidden shadow-lg "
+          id="video"
+        >
+          <iframe
             className="rounded-4 embed-responsive-item yt_video"
             width="560"
             height="315"
@@ -103,9 +147,9 @@ export default function Home() {
           </font>
         </strong>
       </div>
-      <hr style={{margin:"0px",padding:"0px"}} ></hr>
+      <hr style={{ margin: "0px", padding: "0px" }}></hr>
       <Footer />
-      <ScrollToTopButton />              
+      <ScrollToTopButton />
     </>
   );
 }
